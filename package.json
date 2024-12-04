@@ -1,0 +1,46 @@
+{
+  "name": "image-processing",
+  "version": "1.0.0",
+  "description": "Image resizing API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/src/index.js",
+    "build": "tsc",
+    "dev": "nodemon src/index.ts",
+    "test": "npm run build && jasmine",
+    "lint": "npm run prettier && eslint 'src/**/*.ts'",
+    "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Davest9496/image-processing.git"
+  },
+  "author": "Dave Ejezie",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/express": "^5.0.0",
+    "@types/jasmine": "^5.1.5",
+    "@types/node": "^22.10.1",
+    "@types/supertest": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.16.0",
+    "@typescript-eslint/parser": "^8.16.0",
+    "eslint": "^9.16.0",
+    "jasmine": "^5.5.0",
+    "jasmine-spec-reporter": "^7.0.0",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.17.0"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "sharp": "^0.33.5",
+    "supertest": "^7.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/Davest9496/image-processing/issues"
+  },
+  "homepage": "https://github.com/Davest9496/image-processing#readme"
+}
