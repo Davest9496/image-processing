@@ -7,14 +7,12 @@ import { promises as fs } from 'fs';
 import { Options } from '../types/formatTypes';
 import path from 'path';
 
-
 const imageProcessor = async (
   inputPath: string,
   outputPath: string,
   options: Options
 ): Promise<string> => {
   try {
-
     // Check if the input path exists, create outputPath if !exist
     await fs.access(inputPath);
     await fs.mkdir(path.dirname(outputPath), { recursive: true });
@@ -30,8 +28,8 @@ const imageProcessor = async (
       .toFormat(options.format)
       .toFile(outputPath);
 
-    return outputPath
-  }catch(error) {
+    return outputPath;
+  } catch (error) {
     console.error('Image processing error: ', error);
     throw new Error(`Could not process Image: ${error}`);
   }
