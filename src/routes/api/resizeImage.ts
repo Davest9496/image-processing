@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { logger } from '../../utilities/logger';
-import { AllowedFormat, Options, QueryParams } from '../../types/formatTypes';
+import { AllowedFormat, QueryParams, ResizeOptions } from '../../types/formatTypes';
 import { imageProcessor } from '../../services/imageProcessor';
 import path from 'path';
 
@@ -8,13 +8,26 @@ const resize = Router();
 
 resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
   try {
-    const { width, height, fileName, format } = req.query as QueryParams;
+    const {
+      width,
+      height,
+      filename,
+      format = 'jpg',
+    } = req.query as unknown as QueryParams;
+
+    // Debugging: Log the query parameters
+    console.log('Query params:', req.query);
 
     // Check if parameters are provided
-    if (!width || !height || !fileName || !format) {
+    if (!width || !height || !filename) {
+      console.error('Check - Missing required query parameters:', {
+        width,
+        height,
+        filename,
+      });
       res.status(400).json({
         error: 'Missing required query parameters',
-        required: ['width', 'height', 'fileName', 'format'],
+        required: ['width', 'height', 'filename'],
       });
       return;
     }
@@ -35,15 +48,16 @@ resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Validate format
+    // Validate file format
     const validFormats: AllowedFormat[] = [
-      'jpeg',
+      'jpg',
       'png',
       'webp',
       'avif',
       'gif',
     ];
     if (!validFormats.includes(format as AllowedFormat)) {
+      console.log(format);
       res.status(400).json({
         error: 'Invalid format',
         allowedFormats: validFormats,
@@ -51,28 +65,26 @@ resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Configure input and output paths
     const inputPath = path.join(
       __dirname,
-      'images',
-      'full',
-      `${fileName}.jpeg`
+      '../../../src/images/full',
+      `${filename}.jpg`
     );
     const outputPath = path.join(
       __dirname,
-      'images',
-      'thumb',
-      `${fileName}.${format}`
+      '../../../src/images/thumb',
+      `${filename}-${numWidth}x${numHeight}.${format}`
     );
 
-    const resizeOptions: Options = {
+    const resizeOptions: ResizeOptions = {
       width: numWidth,
       height: numHeight,
       format: format as AllowedFormat,
     };
 
     await imageProcessor(inputPath, outputPath, resizeOptions);
-    res.json({ message: 'Image resized', outputPath });
-  res.sendFile(outputPath);
+    res.sendFile(outputPath);
   } catch (error) {
     console.error('Error resizing image:', error);
     res.status(500).json({
@@ -82,4 +94,4 @@ resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-export { resize };
+export default resize;

@@ -1,40 +1,36 @@
-// A function that uses sharp to obtain user info
-// as parameters and returns a promise with the
-// processed image.
-// import path from 'path';
 import sharp from 'sharp';
 import { promises as fs } from 'fs';
-import { Options } from '../types/formatTypes';
 import path from 'path';
+import { ResizeOptions } from '../types/formatTypes';
 
-const imageProcessor = async (
+export const imageProcessor = async (
   inputPath: string,
   outputPath: string,
-  options: Options
-): Promise<string> => {
+  options: ResizeOptions
+): Promise<void> => {
+  const { width, height, format } = options;
+
   try {
-    // Check if the input path exists, create outputPath if !exist
+    // Debugging: Log the input and output paths
+    console.log('inputPath:', inputPath);
+    console.log('outputPath:', outputPath);
+
+    // Check if the input file exists
     await fs.access(inputPath);
+
+    // Create the output directory if it doesn't exist
     await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
-    // Check if the format is allowed
-    if (!['jpeg', 'png', 'webp', 'avif', 'gif'].includes(options.format)) {
-      throw new Error('Invalid format');
-    }
-
-    // Process image
+    // Process the image
     await sharp(inputPath)
-      .resize(options.width, options.height)
-      .toFormat(options.format)
+      .resize(width, height)
+      .toFormat(format)
       .toFile(outputPath);
-
-    return outputPath;
   } catch (error) {
-    console.error('Image processing error: ', error);
-    throw new Error(`Could not process Image: ${error}`);
+    if (error instanceof Error) {
+      throw new Error(`Failed to process image: ${error.message}`);
+    } else {
+      throw new Error('Failed to process image: Unknown error');
+    }
   }
 };
-
-export { imageProcessor };
-
-// new sharp('input.jpg')
