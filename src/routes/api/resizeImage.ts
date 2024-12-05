@@ -3,6 +3,7 @@
 import { Router } from 'express';
 import { logger } from '../../utilities/logger';
 
+
 const resize = Router();
 
 resize.get('/', logger, (req, res) => {
