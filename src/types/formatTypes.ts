@@ -1,4 +1,4 @@
-type AllowedFormat = 'jpeg' | 'png' | 'webp' | 'avif' | 'gif';
+type AllowedFormat = 'jpg' | 'png' | 'webp' | 'avif' | 'gif';
 
 // Define the Options interface
 interface Options {
