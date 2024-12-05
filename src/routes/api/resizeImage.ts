@@ -1,6 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { logger } from '../../utilities/logger';
-import { AllowedFormat, QueryParams, ResizeOptions } from '../../types/formatTypes';
+import {
+  AllowedFormat,
+  QueryParams,
+  ResizeOptions,
+} from '../../types/formatTypes';
 import { imageProcessor } from '../../services/imageProcessor';
 import path from 'path';
 
@@ -49,13 +53,7 @@ resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
     }
 
     // Validate file format
-    const validFormats: AllowedFormat[] = [
-      'jpg',
-      'png',
-      'webp',
-      'avif',
-      'gif',
-    ];
+    const validFormats: AllowedFormat[] = ['jpg', 'png', 'webp', 'avif', 'gif'];
     if (!validFormats.includes(format as AllowedFormat)) {
       console.log(format);
       res.status(400).json({
