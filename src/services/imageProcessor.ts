@@ -4,16 +4,9 @@
 // import path from 'path';
 import sharp from 'sharp';
 import { promises as fs } from 'fs';
+import { Options } from '../types/formatTypes';
 import path from 'path';
 
-type allowedFormat = 'jpeg' | 'png' | 'webp' | 'avif' | 'gif';
-
-interface Options {
-  width: number;
-  height: number;
-  fileName?: string;
-  format: allowedFormat;
-}
 
 const imageProcessor = async (
   inputPath: string,
