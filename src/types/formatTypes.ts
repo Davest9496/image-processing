@@ -1,3 +1,4 @@
+// Define formats accepted by sharp
 type AllowedFormat = 'jpg' | 'png' | 'webp' | 'avif' | 'gif';
 
 // Define the Options interface

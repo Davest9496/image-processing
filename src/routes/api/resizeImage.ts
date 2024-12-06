@@ -36,7 +36,8 @@ resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Parse and validate numeric parameters
+    // Parse as numbers and validate numeric parameters has
+    // positive values
     const numWidth = Number(width);
     const numHeight = Number(height);
     if (
@@ -52,9 +53,10 @@ resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Validate file format
+    // Validate file format by checking against allowedFormat array
     const validFormats: AllowedFormat[] = ['jpg', 'png', 'webp', 'avif', 'gif'];
     if (!validFormats.includes(format as AllowedFormat)) {
+      //--- Debugging: Log the invalid format ---//
       console.log(format);
       res.status(400).json({
         error: 'Invalid format',
@@ -69,6 +71,7 @@ resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
       '../../../src/images/full',
       `${filename}.jpg`
     );
+
     const outputPath = path.join(
       __dirname,
       '../../../src/images/thumb',
@@ -84,12 +87,13 @@ resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
     await imageProcessor(inputPath, outputPath, resizeOptions);
     res.sendFile(outputPath);
   } catch (error) {
-    console.error('Error resizing image:', error);
+    console.error('Application ran into trouble resizing image:', error);
     res.status(500).json({
       error: 'Failed to resize image',
+      //--- Debugging: Log the error message | Unknown if not known ---//
       details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
 
-export default resize;
+export { resize };
