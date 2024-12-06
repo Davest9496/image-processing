@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/src/index.js",
     "build": "tsc && npm run copy-images",
-    "copy-images": "copyfiles -u 1 src/images/**/* dist/src/images",
+    "copy-images": "copyfiles -u 1 src/images/**/* dist/src",
     "dev": "nodemon src/index.ts",
     "test": "npm run build && jasmine",
     "lint": "npm run prettier && eslint 'src/**/*.ts'",
