@@ -10,6 +10,7 @@ import path from 'path';
 
 const resize = Router();
 
+// Route handler that recieves the query parameters and pass to imageProcessor
 resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
   try {
     const {

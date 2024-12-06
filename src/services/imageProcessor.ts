@@ -11,7 +11,7 @@ export const imageProcessor = async (
   const { width, height, format } = options;
 
   try {
-    // Debugging: Log the input and output paths
+    //-- Debugging: Log the input and output paths--//
     console.log('inputPath:', inputPath);
     console.log('outputPath:', outputPath);
 
