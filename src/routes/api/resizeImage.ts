@@ -7,6 +7,7 @@ import {
 } from '../../types/formatTypes';
 import { imageProcessor } from '../../services/imageProcessor';
 import path from 'path';
+import {cache} from '../../utilities/cache';
 
 const resize = Router();
 
@@ -79,6 +80,17 @@ resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
       `${filename}-${numWidth}x${numHeight}.${format}`
     );
 
+    // Check if the image is already in cache
+    const cacheKey = `${filename}-${numWidth}x${numHeight}.${format}`;
+    const cachedImage = cache.get(cacheKey) as string;
+
+    if (cachedImage) {
+      //--- Debugging: Log that image is found in cache ---//
+      console.log('Image found in cache');
+      res.sendFile(cachedImage);
+      return;
+    }
+
     const resizeOptions: ResizeOptions = {
       width: numWidth,
       height: numHeight,
@@ -86,6 +98,10 @@ resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
     };
 
     await imageProcessor(inputPath, outputPath, resizeOptions);
+
+    // Store the image in cache
+    cache.set(cacheKey, outputPath);
+
     res.sendFile(outputPath);
   } catch (error) {
     console.error('Application ran into trouble resizing image:', error);
