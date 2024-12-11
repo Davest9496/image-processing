@@ -7,7 +7,7 @@ import {
 } from '../../types/formatTypes';
 import { imageProcessor } from '../../services/imageProcessor';
 import path from 'path';
-import {cache} from '../../utilities/cache';
+import { cache } from '../../utilities/cache';
 
 const resize = Router();
 

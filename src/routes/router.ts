@@ -5,8 +5,8 @@ import { resize } from './api/resizeImage';
 const routes = Router();
 
 // Route to test if the server is running
-//-- Does nothing in this program currently --//
-routes.get('/', (req, res) => {
+//-- Does nothing in this program currently, test purpose only --//
+routes.get('/', (_req, res) => {
   res.send('Hello, TypeScript from Routes!');
 });
 

@@ -8,8 +8,10 @@ const express_1 = require("express");
 const logger_1 = require("../../utilities/logger");
 const imageProcessor_1 = require("../../services/imageProcessor");
 const path_1 = __importDefault(require("path"));
+const cache_1 = require("../../utilities/cache");
 const resize = (0, express_1.Router)();
 exports.resize = resize;
+// Route handler that recieves the query parameters and pass to imageProcessor
 resize.get('/', logger_1.logger, async (req, res) => {
     try {
         const { width, height, filename, format = 'jpg', } = req.query;
@@ -56,12 +58,24 @@ resize.get('/', logger_1.logger, async (req, res) => {
         // Configure input and output paths
         const inputPath = path_1.default.join(__dirname, '../../../src/images/full', `${filename}.jpg`);
         const outputPath = path_1.default.join(__dirname, '../../../src/images/thumb', `${filename}-${numWidth}x${numHeight}.${format}`);
+        // Check if the image is already in cache
+        const cacheKey = `${filename}-${numWidth}x${numHeight}.${format}`;
+        const cachedImage = cache_1.cache.get(cacheKey);
+        // If image is found in cache, send the image
+        if (cachedImage) {
+            //--- Debugging: Log that image is found in cache ---//
+            console.log('Image found in cache');
+            res.sendFile(cachedImage);
+            return;
+        }
         const resizeOptions = {
             width: numWidth,
             height: numHeight,
             format: format,
         };
         await (0, imageProcessor_1.imageProcessor)(inputPath, outputPath, resizeOptions);
+        // Store the image in cache
+        cache_1.cache.set(cacheKey, outputPath);
         res.sendFile(outputPath);
     }
     catch (error) {

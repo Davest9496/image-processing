@@ -10,6 +10,10 @@ export const imageProcessor = async (
 ): Promise<void> => {
   const { width, height, format } = options;
 
+  interface CustomError extends Error {
+    code?: string;
+  }
+
   try {
     //-- Debugging: Log the input and output paths--//
     console.log('inputPath:', inputPath);
@@ -28,6 +32,13 @@ export const imageProcessor = async (
       .toFile(outputPath);
   } catch (error) {
     if (error instanceof Error) {
+      const customError = error as CustomError;
+      // Handle file not found error
+      if (customError.code === 'ENOENT') {
+        throw new Error(
+          'File not found: Please ensure filename is correctly typed and in the "full" folder'
+        );
+      }
       throw new Error(`Failed to process image: ${error.message}`);
     } else {
       throw new Error('Failed to process image: Unknown error');
