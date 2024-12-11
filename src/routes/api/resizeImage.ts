@@ -84,6 +84,7 @@ resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
     const cacheKey = `${filename}-${numWidth}x${numHeight}.${format}`;
     const cachedImage = cache.get(cacheKey) as string;
 
+    // If image is found in cache, send the image
     if (cachedImage) {
       //--- Debugging: Log that image is found in cache ---//
       console.log('Image found in cache');
