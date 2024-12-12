@@ -1,23 +1,18 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.resize = void 0;
 const express_1 = require("express");
 const logger_1 = require("../../utilities/logger");
 const imageProcessor_1 = require("../../services/imageProcessor");
 const path_1 = __importDefault(require("path"));
+const cache_1 = require("../../utilities/cache");
 const resize = (0, express_1.Router)();
-resize.get('/', logger_1.logger, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.resize = resize;
+// Route handler that recieves the query parameters and pass to imageProcessor
+resize.get('/', logger_1.logger, async (req, res) => {
     try {
         const { width, height, filename, format = 'jpg', } = req.query;
         // Debugging: Log the query parameters
@@ -35,7 +30,8 @@ resize.get('/', logger_1.logger, (req, res) => __awaiter(void 0, void 0, void 0,
             });
             return;
         }
-        // Parse and validate numeric parameters
+        // Parse as numbers and validate numeric parameters has
+        // positive values
         const numWidth = Number(width);
         const numHeight = Number(height);
         if (isNaN(numWidth) ||
@@ -48,9 +44,10 @@ resize.get('/', logger_1.logger, (req, res) => __awaiter(void 0, void 0, void 0,
             });
             return;
         }
-        // Validate file format
+        // Validate file format by checking against allowedFormat array
         const validFormats = ['jpg', 'png', 'webp', 'avif', 'gif'];
         if (!validFormats.includes(format)) {
+            //--- Debugging: Log the invalid format ---//
             console.log(format);
             res.status(400).json({
                 error: 'Invalid format',
@@ -61,20 +58,32 @@ resize.get('/', logger_1.logger, (req, res) => __awaiter(void 0, void 0, void 0,
         // Configure input and output paths
         const inputPath = path_1.default.join(__dirname, '../../../src/images/full', `${filename}.jpg`);
         const outputPath = path_1.default.join(__dirname, '../../../src/images/thumb', `${filename}-${numWidth}x${numHeight}.${format}`);
+        // Check if the image is already in cache
+        const cacheKey = `${filename}-${numWidth}x${numHeight}.${format}`;
+        const cachedImage = cache_1.cache.get(cacheKey);
+        // If image is found in cache, send the image
+        if (cachedImage) {
+            //--- Debugging: Log that image is found in cache ---//
+            console.log('Image found in cache');
+            res.sendFile(cachedImage);
+            return;
+        }
         const resizeOptions = {
             width: numWidth,
             height: numHeight,
             format: format,
         };
-        yield (0, imageProcessor_1.imageProcessor)(inputPath, outputPath, resizeOptions);
+        await (0, imageProcessor_1.imageProcessor)(inputPath, outputPath, resizeOptions);
+        // Store the image in cache
+        cache_1.cache.set(cacheKey, outputPath);
         res.sendFile(outputPath);
     }
     catch (error) {
-        console.error('Error resizing image:', error);
+        console.error('Application ran into trouble resizing image:', error);
         res.status(500).json({
             error: 'Failed to resize image',
+            //--- Debugging: Log the error message | Unknown if not known ---//
             details: error instanceof Error ? error.message : 'Unknown error',
         });
     }
-}));
-exports.default = resize;
+});
