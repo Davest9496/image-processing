@@ -13,7 +13,7 @@ interface ResizeOptions {
 interface QueryParams {
   width: string;
   height: string;
-  filename: string;
+  filename?: string;
   format?: string;
 }
 

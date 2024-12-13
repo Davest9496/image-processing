@@ -28,7 +28,7 @@ const imageProcessor = async (inputPath, outputPath, options) => {
             const customError = error;
             // Handle file not found error
             if (customError.code === 'ENOENT') {
-                throw new Error('File not found: Please ensure filename is correctly typed and in the "full" folder');
+                throw new Error('File not found: Could not upload image');
             }
             throw new Error(`Failed to process image: ${error.message}`);
         }

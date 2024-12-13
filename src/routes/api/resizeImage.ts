@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import multer from 'multer';
 import { logger } from '../../utilities/logger';
 import {
   AllowedFormat,
@@ -8,110 +9,118 @@ import {
 import { imageProcessor } from '../../services/imageProcessor';
 import path from 'path';
 import { cache } from '../../utilities/cache';
+import { promises as fs } from 'fs';
 
 const resize = Router();
 
-// Route handler that recieves the query parameters and pass to imageProcessor
-resize.get('/', logger, async (req: Request, res: Response): Promise<void> => {
-  try {
-    const {
-      width,
-      height,
-      filename,
-      format = 'jpg',
-    } = req.query as unknown as QueryParams;
+// Define upload path at the top level
+const uploadPath = path.join(__dirname, '../../../uploads');
 
-    // Debugging: Log the query parameters
-    console.log('Query params:', req.query);
+// Create upload directory if it doesn't exist
+fs.mkdir(uploadPath, { recursive: true }).catch(console.error);
 
-    // Check if parameters are provided
-    if (!width || !height || !filename) {
-      console.error('Check - Missing required query parameters:', {
+// Multer storage configuration
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, uploadPath);
+  },
+  filename: (_req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    // Only accept image files
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp|avif)$/i)) {
+      cb(null, false);
+      return;
+    }
+    cb(null, true);
+  },
+});
+
+// Your existing route handler remains the same but with more detailed logging
+resize.post(
+  '/upload',
+  upload.single('image'),
+  logger,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const file = req.file;
+      console.log('Uploaded file details:', file);
+
+      if (!file) {
+        res.status(400).json({
+          error: 'File not uploaded',
+        });
+        return;
+      }
+
+      const {
         width,
         height,
-        filename,
+        format = 'jpg',
+      } = req.body as unknown as QueryParams;
+
+      // Use original filename for user-friendly naming
+      const originalFilename = path.parse(file.originalname).name;
+
+      console.log('Processing request:', {
+        originalFilename,
+        width,
+        height,
+        format,
+        inputPath: file.path,
       });
-      res.status(400).json({
-        error: 'Missing required query parameters',
-        required: ['width', 'height', 'filename'],
+
+      // Check if parameters are provided
+      if (!width || !height) {
+        console.error('Missing required parameters:', { width, height });
+        res.status(400).json({
+          error: 'Missing required parameters',
+          required: ['width', 'height'],
+        });
+        return;
+      }
+
+      // Configure input and output paths
+      const inputPath = file.path;
+      const outputPath = path.join(
+        __dirname,
+        '../../../src/images/thumb',
+        `${originalFilename}-${width}x${height}.${format}`
+      );
+
+      const resizeOptions: ResizeOptions = {
+        width: Number(width),
+        height: Number(height),
+        format: format as AllowedFormat,
+      };
+
+      await imageProcessor(inputPath, outputPath, resizeOptions);
+
+      // Store the image in cache
+      const cacheKey = `${originalFilename}-${width}x${height}.${format}`;
+      cache.set(cacheKey, outputPath);
+      //-- Debugging: Log the cache key--//
+      console.log('Image stored in cache:', cacheKey);
+
+      res.sendFile(outputPath);
+
+      // Clean up uploaded file after processing
+      fs.unlink(inputPath).catch((err) =>
+        console.error('Error cleaning up uploaded file:', err)
+      );
+    } catch (error) {
+      console.error('Image processing error:', error);
+      res.status(500).json({
+        error: 'Failed to process image',
+        details: error instanceof Error ? error.message : 'Unknown error',
       });
-      return;
     }
-
-    // Parse as numbers and validate numeric parameters has
-    // positive values
-    const numWidth = Number(width);
-    const numHeight = Number(height);
-    if (
-      isNaN(numWidth) ||
-      isNaN(numHeight) ||
-      numWidth <= 0 ||
-      numHeight <= 0
-    ) {
-      res.status(400).json({
-        error: 'Invalid width or height',
-        details: 'Width and height must be positive numbers',
-      });
-      return;
-    }
-
-    // Validate file format by checking against allowedFormat array
-    const validFormats: AllowedFormat[] = ['jpg', 'png', 'webp', 'avif', 'gif'];
-    if (!validFormats.includes(format as AllowedFormat)) {
-      //--- Debugging: Log the invalid format ---//
-      console.log(format);
-      res.status(400).json({
-        error: 'Invalid format',
-        allowedFormats: validFormats,
-      });
-      return;
-    }
-
-    // Configure input and output paths
-    const inputPath = path.join(
-      __dirname,
-      '../../../src/images/full',
-      `${filename}.jpg`
-    );
-
-    const outputPath = path.join(
-      __dirname,
-      '../../../src/images/thumb',
-      `${filename}-${numWidth}x${numHeight}.${format}`
-    );
-
-    // Check if the image is already in cache
-    const cacheKey = `${filename}-${numWidth}x${numHeight}.${format}`;
-    const cachedImage = cache.get(cacheKey) as string;
-
-    // If image is found in cache, send the image
-    if (cachedImage) {
-      //--- Debugging: Log that image is found in cache ---//
-      console.log('Image found in cache');
-      res.sendFile(cachedImage);
-      return;
-    }
-
-    const resizeOptions: ResizeOptions = {
-      width: numWidth,
-      height: numHeight,
-      format: format as AllowedFormat,
-    };
-
-    await imageProcessor(inputPath, outputPath, resizeOptions);
-
-    // Store the image in cache
-    cache.set(cacheKey, outputPath);
-
-    res.sendFile(outputPath);
-  } catch (error) {
-    console.error('Application ran into trouble resizing image:', error);
-    res.status(500).json({
-      error: 'Failed to resize image',
-      //--- Debugging: Log the error message | Unknown if not known ---//
-      details: error instanceof Error ? error.message : 'Unknown error',
-    });
   }
-});
+);
 
 export { resize };

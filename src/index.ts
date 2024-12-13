@@ -3,7 +3,6 @@ import { routes } from './routes/router';
 import { logger } from './utilities/logger';
 import path from 'path';
 
-
 const app = express();
 const port = 3000;
 
@@ -11,8 +10,8 @@ const port = 3000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// static files
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files
+app.use(express.static(path.join(__dirname, '../public')));
 
 // middleware for form data
 app.use(express.urlencoded({ extended: true }));
