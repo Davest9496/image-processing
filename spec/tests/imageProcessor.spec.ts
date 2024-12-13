@@ -1,3 +1,4 @@
+import 'jasmine';
 import { imageProcessor } from '../../src/services/imageProcessor';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -5,7 +6,6 @@ import { ResizeOptions } from '../../src/types/formatTypes';
 import express, { Application } from 'express';
 import { resize } from '../../src/routes/api/resizeImage';
 import request from 'supertest';
-import 'jasmine';
 import { fail } from 'assert';
 
 describe('Image Processing System', () => {
