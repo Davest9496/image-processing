@@ -3,13 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("jasmine");
 const imageProcessor_1 = require("../../src/services/imageProcessor");
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const express_1 = __importDefault(require("express"));
 const resizeImage_1 = require("../../src/routes/api/resizeImage");
 const supertest_1 = __importDefault(require("supertest"));
-require("jasmine");
 const assert_1 = require("assert");
 describe('Image Processing System', () => {
     // Define paths using project structure
