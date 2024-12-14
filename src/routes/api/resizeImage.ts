@@ -14,7 +14,7 @@ import { promises as fs } from 'fs';
 const resize = Router();
 
 // Define upload path at the top level
-const uploadPath = path.join(__dirname, '../../../uploads');
+const uploadPath = path.join(__dirname, '../../images/full');
 
 // Create upload directory if it doesn't exist
 fs.mkdir(uploadPath, { recursive: true }).catch(console.error);
@@ -41,7 +41,7 @@ const upload = multer({
   },
 });
 
-// Your existing route handler remains the same but with more detailed logging
+// Route handler for image upload and processing
 resize.post(
   '/upload',
   upload.single('image'),
