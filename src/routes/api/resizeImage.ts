@@ -43,7 +43,7 @@ const upload = multer({
 
 // Route handler for image upload and processing
 resize.post(
-  '/upload',
+  '/resize',
   upload.single('image'),
   logger,
   async (req: Request, res: Response): Promise<void> => {
