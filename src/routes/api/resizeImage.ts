@@ -16,9 +16,6 @@ const resize = Router();
 // Define upload path at the top level
 const uploadPath = path.join(__dirname, '../../images/full');
 
-// Create upload directory if it doesn't exist
-fs.mkdir(uploadPath, { recursive: true }).catch(console.error);
-
 // Multer storage configuration
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
@@ -32,7 +29,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    // Only accept image files
+    // Only accept these image file format
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp|avif)$/i)) {
       cb(null, false);
       return;

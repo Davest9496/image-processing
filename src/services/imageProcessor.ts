@@ -2,6 +2,7 @@ import sharp from 'sharp';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ResizeOptions } from '../types/formatTypes';
+import { CustomError } from '../types/errorTypes';
 
 export const imageProcessor = async (
   inputPath: string,
@@ -9,10 +10,6 @@ export const imageProcessor = async (
   options: ResizeOptions
 ): Promise<void> => {
   const { width, height, format } = options;
-
-  interface CustomError extends Error {
-    code?: string;
-  }
 
   try {
     //-- Debugging: Log the input and output paths--//

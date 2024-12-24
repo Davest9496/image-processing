@@ -14,9 +14,7 @@ const fs_1 = require("fs");
 const resize = (0, express_1.Router)();
 exports.resize = resize;
 // Define upload path at the top level
-const uploadPath = path_1.default.join(__dirname, '../../../uploads');
-// Create upload directory if it doesn't exist
-fs_1.promises.mkdir(uploadPath, { recursive: true }).catch(console.error);
+const uploadPath = path_1.default.join(__dirname, '../../images/full');
 // Multer storage configuration
 const storage = multer_1.default.diskStorage({
     destination: (_req, _file, cb) => {
@@ -29,7 +27,7 @@ const storage = multer_1.default.diskStorage({
 const upload = (0, multer_1.default)({
     storage,
     fileFilter: (req, file, cb) => {
-        // Only accept image files
+        // Only accept these image file format
         if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp|avif)$/i)) {
             cb(null, false);
             return;
@@ -37,8 +35,8 @@ const upload = (0, multer_1.default)({
         cb(null, true);
     },
 });
-// Your existing route handler remains the same but with more detailed logging
-resize.post('/upload', upload.single('image'), logger_1.logger, async (req, res) => {
+// Route handler for image upload and processing
+resize.post('/resize', upload.single('image'), logger_1.logger, async (req, res) => {
     try {
         const file = req.file;
         console.log('Uploaded file details:', file);
