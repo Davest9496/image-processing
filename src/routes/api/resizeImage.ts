@@ -96,20 +96,31 @@ resize.post(
         format: format as AllowedFormat,
       };
 
-      await imageProcessor(inputPath, outputPath, resizeOptions);
+     await imageProcessor(inputPath, outputPath, resizeOptions);
 
-      // Store the image in cache
-      const cacheKey = `${originalFilename}-${width}x${height}.${format}`;
-      cache.set(cacheKey, outputPath);
-      //-- Debugging: Log the cache key--//
-      console.log('Image stored in cache:', cacheKey);
+     // Store the image in cache
+     const cacheKey = `${originalFilename}-${width}x${height}.${format}`;
+     cache.set(cacheKey, outputPath);
+     //-- Debugging: Log the cache key--//
+     console.log('Image stored in cache:', cacheKey);
 
-      res.sendFile(outputPath);
+     res.sendFile(outputPath);
 
-      // Clean up uploaded file after processing
-      fs.unlink(inputPath).catch((err) =>
-        console.error('Error cleaning up uploaded file:', err)
-      );
+     // Clean up uploaded file after processing
+     fs.unlink(inputPath).catch((err) =>
+       console.error('Error cleaning up uploaded file:', err)
+     );
+
+     // Calculate the relative path for the image
+     const relativePath = `/images/thumb/${originalFilename}-${width}x${height}.${format}`;
+
+     // Render the result page with image details
+     res.render('result', {
+       imagePath: relativePath,
+       width: width,
+       height: height,
+       format: format,
+     });
     } catch (error) {
       console.error('Image processing error:', error);
       res.status(500).json({

@@ -16,6 +16,15 @@ app.use(express.static(path.join(__dirname, '../public')));
 // middleware for form data
 app.use(express.urlencoded({ extended: true }));
 
+app.use(
+  '/images/thumb',
+  express.static(path.join(__dirname, '../src/images/thumb'))
+);
+app.use(
+  '/images/full',
+  express.static(path.join(__dirname, '../src/images/full'))
+);
+
 app.use(logger);
 
 // import and use routes

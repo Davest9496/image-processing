@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resized Image Result</title>
+    <link rel="stylesheet" href="/css/result.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Your Resized Image</h1>
+        <div class="result-card">
+            <img src="<%= imagePath %>" alt="Resized image" class="result-image">
+            <div class="image-info">
+                <p>Dimensions: <%= width %>x<%= height %> pixels</p>
+                <p>Format: <%= format %></p>
+            </div>
+            <a href="/api" class="back-button">Resize Another Image</a>
+        </div>
+    </div>
+</body>
+</html>
