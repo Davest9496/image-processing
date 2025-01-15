@@ -2,42 +2,19 @@
   "name": "image-processing",
   "version": "1.0.0",
   "description": "Image resizing API",
-  "main": "index.js",
+  "main": "dist/src/index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node dist/src/index.js",
-    "build": "tsc && npm run copy-images",
-    "copy-images": "copyfiles -u 1 src/images/**/* dist/src",
+    "build": "tsc",
+    "postbuild": "npm run copy-static",
+    "copy-static": "copyfiles -u 1 \"src/views/**/*.ejs\" \"src/public/**/*\" dist/src/",
+    "vercel-build": "npm run build",
     "dev": "nodemon src/index.ts",
-    "test": "npm run build && jasmine",
-    "lint": "npm run prettier && eslint 'src/**/*.ts'",
-    "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Davest9496/image-processing.git"
-  },
-  "author": "Dave Ejezie",
-  "license": "ISC",
-  "devDependencies": {
-    "@eslint/js": "^9.16.0",
-    "@types/express": "^5.0.0",
-    "@types/jasmine": "^5.1.5",
-    "@types/multer": "^1.4.12",
-    "@types/node": "^22.10.1",
-    "@types/supertest": "^6.0.2",
-    "@typescript-eslint/eslint-plugin": "^8.17.0",
-    "@typescript-eslint/parser": "^8.17.0",
-    "copyfiles": "^2.4.1",
-    "eslint": "^9.16.0",
-    "globals": "^15.13.0",
-    "jasmine": "^5.5.0",
-    "jasmine-spec-reporter": "^7.0.0",
-    "nodemon": "^3.1.7",
-    "prettier": "^3.4.1",
-    "supertest": "^7.0.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.2",
-    "typescript-eslint": "^8.17.0"
+    "lint": "eslint 'src/**/*.ts'",
+    "prettier": "prettier --write 'src/**/*.ts'"
   },
   "dependencies": {
     "ejs": "^3.1.10",
@@ -46,8 +23,19 @@
     "node-cache": "^5.1.2",
     "sharp": "^0.33.5"
   },
-  "bugs": {
-    "url": "https://github.com/Davest9496/image-processing/issues"
-  },
-  "homepage": "https://github.com/Davest9496/image-processing#readme"
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/jasmine": "^5.1.5",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "copyfiles": "^2.4.1",
+    "jasmine": "^5.5.0",
+    "jasmine-spec-reporter": "^7.0.0",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
 }

@@ -13,3 +13,4 @@ jasmine.getEnv().addReporter(new jasmine_spec_reporter_1.SpecReporter({
     },
     customProcessors: [CustomProcessor],
 }));
+//# sourceMappingURL=reporters.js.map

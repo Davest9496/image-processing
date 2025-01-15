@@ -1,35 +1,23 @@
 import express from 'express';
-import { routes } from './routes/router';
-import { logger } from './utilities/logger';
 import path from 'path';
+import { routes } from './routes/router';
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-// set view engine
-app.set('view engine', 'ejs');
+// View engine setup
 app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
-// Serve static files
-app.use(express.static(path.join(__dirname, '../public')));
+// Static files
+app.use(express.static(path.join(__dirname, 'public')));
 
-// middleware for form data
-app.use(express.urlencoded({ extended: true }));
-
-app.use(
-  '/images/thumb',
-  express.static(path.join(__dirname, '../src/images/thumb'))
-);
-app.use(
-  '/images/full',
-  express.static(path.join(__dirname, '../src/images/full'))
-);
-
-app.use(logger);
-
-// import and use routes
+// Routes
 app.use('/api', routes);
 
+// Start server
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server running on port ${port}`);
 });
+
+export default app;

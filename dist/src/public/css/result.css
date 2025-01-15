@@ -1,0 +1,77 @@
+:root {
+            --burgundy: #800020;
+        }
+        
+        body {
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            background-color: var(--burgundy);
+            color: white;
+            font-family: -apple-system, system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .result-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .image-info {
+            color: #333;
+            margin-bottom: 2rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+
+        .primary-button {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .secondary-button {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            text-align: left;
+        }

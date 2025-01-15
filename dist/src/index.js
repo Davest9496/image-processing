@@ -4,21 +4,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const router_1 = require("./routes/router");
-const logger_1 = require("./utilities/logger");
 const path_1 = __importDefault(require("path"));
+const router_1 = require("./routes/router");
 const app = (0, express_1.default)();
-const port = 3000;
-// set view engine
-app.set('view engine', 'ejs');
+const port = process.env.PORT || 3000;
+// View engine setup
 app.set('views', path_1.default.join(__dirname, 'views'));
-// Serve static files
-app.use(express_1.default.static(path_1.default.join(__dirname, '../public')));
-// middleware for form data
-app.use(express_1.default.urlencoded({ extended: true }));
-app.use(logger_1.logger);
-// import and use routes
+app.set('view engine', 'ejs');
+// Static files
+app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
+// Routes
 app.use('/api', router_1.routes);
+// Start server
 app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+    console.log(`Server running on port ${port}`);
 });
+exports.default = app;
+//# sourceMappingURL=index.js.map

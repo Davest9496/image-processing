@@ -9,3 +9,4 @@ const logger = (req, res, next) => {
     next(); // Call the next middleware
 };
 exports.logger = logger;
+//# sourceMappingURL=logger.js.map

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Resizer</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Image Resizer</h1>
+            <p>Easily resize images online for free.</p>
+        </div>
+
+        <form action="/api/images/resize" method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div class="upload-container">
+                <div class="card">
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-zone-icon">📁</div>
+                        <div class="file-input-wrapper">
+                            <div class="select-button">Select Image</div>
+                            <input type="file" name="image" id="image" accept="image/*" required>
+                        </div>
+                        <p>or drag and drop an image here</p>
+                        <div id="selectedFileName"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="form-group">
+                        <label for="width">Width (pixels)</label>
+                        <input type="number" name="width" id="width" required placeholder="Enter width">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="height">Height (pixels)</label>
+                        <input type="number" name="height" id="height" required placeholder="Enter height">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="format">Format</label>
+                        <select name="format" id="format" required>
+                            <option value="jpg">JPG</option>
+                            <option value="png">PNG</option>
+                            <option value="webp">WebP</option>
+                            <option value="avif">AVIF</option>
+                            <option value="gif">GIF</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Resize Image</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🖼️</div>
+                <h3>Perfect quality</h3>
+                <p>The best online image resizer to resize your images at the highest quality.</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Lightning Fast</h3>
+                <p>This cloud-hosted, highly scalable tool can resize your images within seconds!</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <h3>Easy To Use</h3>
+                <p>Simply upload your image and enter a target size. It's as easy as that!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/upload.js"></script>
+</body>
+</html>

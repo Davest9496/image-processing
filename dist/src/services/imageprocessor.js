@@ -5,31 +5,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.imageProcessor = void 0;
 const sharp_1 = __importDefault(require("sharp"));
-const fs_1 = require("fs");
-const path_1 = __importDefault(require("path"));
-const imageProcessor = async (inputPath, outputPath, options) => {
+const imageProcessor = async (inputBuffer, options) => {
     const { width, height, format } = options;
     try {
-        //-- Debugging: Log the input and output paths--//
-        console.log('inputPath:', inputPath);
-        console.log('outputPath:', outputPath);
-        // Check if the input file exists
-        await fs_1.promises.access(inputPath);
-        // Create the output directory if it doesn't exist
-        await fs_1.promises.mkdir(path_1.default.dirname(outputPath), { recursive: true });
-        // Process the image
-        await (0, sharp_1.default)(inputPath)
+        return await (0, sharp_1.default)(inputBuffer)
             .resize(width, height)
             .toFormat(format)
-            .toFile(outputPath);
+            .toBuffer();
     }
     catch (error) {
         if (error instanceof Error) {
-            const customError = error;
-            // Handle file not found error
-            if (customError.code === 'ENOENT') {
-                throw new Error('File not found: Could not upload image');
-            }
             throw new Error(`Failed to process image: ${error.message}`);
         }
         else {
@@ -38,3 +23,4 @@ const imageProcessor = async (inputPath, outputPath, options) => {
     }
 };
 exports.imageProcessor = imageProcessor;
+//# sourceMappingURL=imageProcessor.js.map

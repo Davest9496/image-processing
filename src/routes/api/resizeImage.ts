@@ -7,38 +7,26 @@ import {
   ResizeOptions,
 } from '../../types/formatTypes';
 import { imageProcessor } from '../../services/imageProcessor';
-import path from 'path';
 import { cache } from '../../utilities/cache';
-import { promises as fs } from 'fs';
 
 const resize = Router();
 
-// Define upload path at the top level
-const uploadPath = path.join(__dirname, '../../images/full');
-
-// Multer storage configuration
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadPath);
-  },
-  filename: (_req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
-
+// Use memory storage instead of disk storage for Vercel
 const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    // Only accept these image file format
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (_req, file, cb) => {
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp|avif)$/i)) {
-      cb(null, false);
+      cb(new Error('Invalid file type'));
       return;
     }
     cb(null, true);
   },
 });
 
-// Route handler for image upload and processing
+// Image processing endpoint
 resize.post(
   '/resize',
   upload.single('image'),
@@ -46,12 +34,10 @@ resize.post(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const file = req.file;
-      console.log('Uploaded file details:', file);
+      console.log('Processing upload:', file?.originalname);
 
       if (!file) {
-        res.status(400).json({
-          error: 'File not uploaded',
-        });
+        res.status(400).json({ error: 'No file uploaded' });
         return;
       }
 
@@ -61,34 +47,13 @@ resize.post(
         format = 'jpg',
       } = req.body as unknown as QueryParams;
 
-      // Use original filename for user-friendly naming
-      const originalFilename = path.parse(file.originalname).name;
-
-      console.log('Processing request:', {
-        originalFilename,
-        width,
-        height,
-        format,
-        inputPath: file.path,
-      });
-
-      // Check if parameters are provided
       if (!width || !height) {
-        console.error('Missing required parameters:', { width, height });
         res.status(400).json({
-          error: 'Missing required parameters',
+          error: 'Missing dimensions',
           required: ['width', 'height'],
         });
         return;
       }
-
-      // Configure input and output paths
-      const inputPath = file.path;
-      const outputPath = path.join(
-        __dirname,
-        '../../../src/images/thumb',
-        `${originalFilename}-${width}x${height}.${format}`
-      );
 
       const resizeOptions: ResizeOptions = {
         width: Number(width),
@@ -96,35 +61,66 @@ resize.post(
         format: format as AllowedFormat,
       };
 
-     await imageProcessor(inputPath, outputPath, resizeOptions);
+      const processedImageBuffer = await imageProcessor(
+        file.buffer,
+        resizeOptions
+      );
+      const timestamp = Date.now();
+      const cacheKey = `${timestamp}-${width}x${height}.${format}`;
 
-     // Store the image in cache
-     const cacheKey = `${originalFilename}-${width}x${height}.${format}`;
-     cache.set(cacheKey, outputPath);
-     //-- Debugging: Log the cache key--//
-     console.log('Image stored in cache:', cacheKey);
+      // Store in cache
+      cache.set(cacheKey, {
+        buffer: processedImageBuffer,
+        contentType: `image/${format}`,
+        timestamp,
+      });
 
-     res.sendFile(outputPath);
-
-     // Clean up uploaded file after processing
-     fs.unlink(inputPath).catch((err) =>
-       console.error('Error cleaning up uploaded file:', err)
-     );
-
-     // Calculate the relative path for the image
-     const relativePath = `/images/thumb/${originalFilename}-${width}x${height}.${format}`;
-
-     // Render the result page with image details
-     res.render('result', {
-       imagePath: relativePath,
-       width: width,
-       height: height,
-       format: format,
-     });
+      // Render the result page with the correct API path
+      res.render('result', {
+        imageId: cacheKey,
+        width,
+        height,
+        format,
+        apiBasePath: '/api', // Pass this to the template
+      });
     } catch (error) {
-      console.error('Image processing error:', error);
+      console.error('Processing error:', error);
       res.status(500).json({
-        error: 'Failed to process image',
+        error: 'Processing failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+);
+
+// Serve processed images
+resize.get(
+  '/processed/:imageId',
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { imageId } = req.params;
+      console.log('Serving image:', imageId);
+
+      const cachedImage = cache.get(imageId) as
+        | {
+            buffer: Buffer;
+            contentType: string;
+            timestamp: number;
+          }
+        | undefined;
+
+      if (!cachedImage) {
+        res.status(404).json({ error: 'Image not found' });
+        return;
+      }
+
+      res.set('Content-Type', cachedImage.contentType);
+      res.set('Cache-Control', 'public, max-age=3600');
+      res.send(cachedImage.buffer);
+    } catch (error) {
+      console.error('Serve error:', error);
+      res.status(500).json({
+        error: 'Failed to serve image',
         details: error instanceof Error ? error.message : 'Unknown error',
       });
     }

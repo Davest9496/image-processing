@@ -8,3 +8,4 @@ const node_cache_1 = __importDefault(require("node-cache"));
 // Create a new cache instance
 const cache = new node_cache_1.default();
 exports.cache = cache;
+//# sourceMappingURL=cache.js.map
