@@ -68,3 +68,15 @@ function updateFileName() {
     selectedFileName.textContent = '';
   }
 }
+
+// Error handling for too large files
+document.getElementById('uploadForm').addEventListener('submit', function (e) {
+  const fileInput = document.getElementById('image');
+  const file = fileInput.files[0];
+
+  if (file && file.size > 4 * 1024 * 1024) {
+    e.preventDefault();
+    alert('File size exceeds 4MB limit. Please choose a smaller file.');
+    return false;
+  }
+});
