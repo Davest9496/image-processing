@@ -192,6 +192,63 @@ button:hover {
     font-size: 0.875rem;
 }
 
+/* Add to your styles.css */
+.size-warning {
+    background-color: #fff3cd;
+    border: 2px solid #ffd700;
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 1rem 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.size-warning.hidden {
+    display: none;
+}
+
+.warning-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.warning-content {
+    flex: 1;
+    color: #664d03;
+}
+
+.warning-content strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #b45309;
+}
+
+.file-size {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+/* Make the original size warning more prominent */
+.upload-info .upload-warning {
+    font-size: 1rem;
+    color: #b45309;
+    padding: 0.5rem;
+    background-color: #fff3cd;
+    border-radius: 4px;
+    border: 1px solid #ffd700;
+    margin: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Style for file info display */
+#selectedFileName {
+    margin-top: 0.75rem;
+    line-height: 1.5;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .upload-container {

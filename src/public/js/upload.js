@@ -1,3 +1,4 @@
+// upload.js
 document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('uploadForm');
   const fileInput = document.getElementById('image');
@@ -7,16 +8,40 @@ document.addEventListener('DOMContentLoaded', function () {
   errorContainer.className = 'error-message';
   dropZone.appendChild(errorContainer);
 
+  // Create size warning element
+  const sizeWarning = document.createElement('div');
+  sizeWarning.className = 'size-warning hidden';
+  dropZone.appendChild(sizeWarning);
+
   const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB in bytes
 
-  function showError(message) {
-    errorContainer.textContent = message;
-    errorContainer.style.display = 'block';
+  function formatFileSize(bytes) {
+    const mb = bytes / (1024 * 1024);
+    return mb.toFixed(2);
+  }
+
+  function showError(message, isWarning = false) {
+    if (isWarning) {
+      sizeWarning.innerHTML = `
+                <div class="warning-icon">⚠️</div>
+                <div class="warning-content">
+                    <strong>Warning: Large File Detected</strong><br>
+                    ${message}
+                </div>
+            `;
+      sizeWarning.classList.remove('hidden');
+      errorContainer.style.display = 'none';
+    } else {
+      errorContainer.textContent = message;
+      errorContainer.style.display = 'block';
+      sizeWarning.classList.add('hidden');
+    }
     selectedFileName.style.display = 'none';
   }
 
   function clearError() {
     errorContainer.style.display = 'none';
+    sizeWarning.classList.add('hidden');
     selectedFileName.style.display = 'block';
   }
 
@@ -26,9 +51,16 @@ document.addEventListener('DOMContentLoaded', function () {
       return false;
     }
 
+    const fileSize = formatFileSize(file.size);
+
     if (file.size > MAX_FILE_SIZE) {
       showError(
-        `File size (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds the 4MB limit`
+        `
+                Current file size: ${fileSize}MB<br>
+                Maximum allowed: 4MB<br>
+                Please choose a smaller file or compress this one.
+            `,
+        true
       );
       return false;
     }
@@ -37,6 +69,12 @@ document.addEventListener('DOMContentLoaded', function () {
       showError('Invalid file type. Please use JPG, PNG, GIF, WebP, or AVIF');
       return false;
     }
+
+    // Show file size even for valid files
+    selectedFileName.innerHTML = `
+            Selected: ${file.name}<br>
+            <span class="file-size">Size: ${fileSize}MB</span>
+        `;
 
     return true;
   }
@@ -47,9 +85,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (file) {
       if (validateFile(file)) {
         clearError();
-        selectedFileName.textContent = `Selected: ${file.name}`;
       } else {
-        this.value = ''; // Clear the file input
+        // Don't clear the input to allow checking the file info
+        // this.value = '';
       }
     }
   });
@@ -85,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (validateFile(file)) {
       fileInput.files = e.dataTransfer.files;
       clearError();
-      selectedFileName.textContent = `Selected: ${file.name}`;
     }
   });
 });
