@@ -1,82 +1,91 @@
-// Get DOM elements
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('image');
-const selectedFileName = document.getElementById('selectedFileName');
-
-// Prevent default drag behaviors
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
-  dropZone.addEventListener(eventName, preventDefaults, false);
-  document.body.addEventListener(eventName, preventDefaults, false);
-});
-
-// Highlight drop zone when item is dragged over it
-['dragenter', 'dragover'].forEach((eventName) => {
-  dropZone.addEventListener(eventName, highlight, false);
-});
-
-['dragleave', 'drop'].forEach((eventName) => {
-  dropZone.addEventListener(eventName, unhighlight, false);
-});
-
-// Handle dropped files
-dropZone.addEventListener('drop', handleDrop, false);
-
-/**
- * Prevents default drag and drop behaviors
- * @param {Event} e - The drag event
- */
-function preventDefaults(e) {
-  e.preventDefault();
-  e.stopPropagation();
-}
-
-/**
- * Adds highlight class to drop zone
- */
-function highlight() {
-  dropZone.classList.add('dragover');
-}
-
-/**
- * Removes highlight class from drop zone
- */
-function unhighlight() {
-  dropZone.classList.remove('dragover');
-}
-
-/**
- * Handles file drop event
- * @param {DragEvent} e - The drop event
- */
-function handleDrop(e) {
-  const dt = e.dataTransfer;
-  const files = dt.files;
-  fileInput.files = files;
-  updateFileName();
-}
-
-// Update filename when file is selected
-fileInput.addEventListener('change', updateFileName);
-
-/**
- * Updates the displayed filename when a file is selected
- */
-function updateFileName() {
-  if (fileInput.files.length > 0) {
-    selectedFileName.textContent = `Selected: ${fileInput.files[0].name}`;
-  } else {
-    selectedFileName.textContent = '';
-  }
-}
-
-// Error handling for too large files
-document.getElementById('uploadForm').addEventListener('submit', function (e) {
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('uploadForm');
   const fileInput = document.getElementById('image');
-  const file = fileInput.files[0];
+  const dropZone = document.getElementById('dropZone');
+  const selectedFileName = document.getElementById('selectedFileName');
+  const errorContainer = document.createElement('div');
+  errorContainer.className = 'error-message';
+  dropZone.appendChild(errorContainer);
 
-  if (file && file.size > 4 * 1024 * 1024) {
-    e.preventDefault();
-    alert('File size exceeds 4MB limit. Please choose a smaller file.');
-    return false;
+  const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB in bytes
+
+  function showError(message) {
+    errorContainer.textContent = message;
+    errorContainer.style.display = 'block';
+    selectedFileName.style.display = 'none';
   }
+
+  function clearError() {
+    errorContainer.style.display = 'none';
+    selectedFileName.style.display = 'block';
+  }
+
+  function validateFile(file) {
+    if (!file) {
+      showError('Please select a file');
+      return false;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      showError(
+        `File size (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds the 4MB limit`
+      );
+      return false;
+    }
+
+    if (!file.type.match(/^image\/(jpeg|png|gif|webp|avif)$/)) {
+      showError('Invalid file type. Please use JPG, PNG, GIF, WebP, or AVIF');
+      return false;
+    }
+
+    return true;
+  }
+
+  // File input change handler
+  fileInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (file) {
+      if (validateFile(file)) {
+        clearError();
+        selectedFileName.textContent = `Selected: ${file.name}`;
+      } else {
+        this.value = ''; // Clear the file input
+      }
+    }
+  });
+
+  // Form submit handler
+  form.addEventListener('submit', function (e) {
+    const file = fileInput.files[0];
+    if (!validateFile(file)) {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  // Drag and drop handlers
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  dropZone.addEventListener('dragenter', () =>
+    dropZone.classList.add('dragover')
+  );
+  dropZone.addEventListener('dragleave', () =>
+    dropZone.classList.remove('dragover')
+  );
+  dropZone.addEventListener('drop', (e) => {
+    dropZone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (validateFile(file)) {
+      fileInput.files = e.dataTransfer.files;
+      clearError();
+      selectedFileName.textContent = `Selected: ${file.name}`;
+    }
+  });
 });

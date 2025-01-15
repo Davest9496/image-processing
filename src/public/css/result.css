@@ -1,99 +1,97 @@
 :root {
-            --burgundy: #800020;
-        }
-        
-        body {
-            margin: 0;
-            padding: 2rem;
-            min-height: 100vh;
-            background-color: var(--burgundy);
-            color: white;
-            font-family: -apple-system, system-ui, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+  --burgundy: #800020;
+}
 
-        .container {
-            width: 100%;
-            max-width: 800px;
-            text-align: center;
-        }
+body {
+  margin: 0;
+  padding: 2rem;
+  min-height: 100vh;
+  background-color: var(--burgundy);
+  color: white;
+  font-family: -apple-system, system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-        .result-card {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-top: 2rem;
-        }
+.container {
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
+}
 
-        .result-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-        }
+.result-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+}
 
-        .image-info {
-            color: #333;
-            margin-bottom: 2rem;
-        }
+.result-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
 
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1.5rem;
-        }
+.image-info {
+  color: #333;
+  margin-bottom: 2rem;
+}
 
-        .button {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: transform 0.2s;
-        }
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
 
-        .primary-button {
-            background-color: #3b82f6;
-            color: white;
-        }
+.button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: transform 0.2s;
+}
 
-        .secondary-button {
-            background-color: #6b7280;
-            color: white;
-        }
+.primary-button {
+  background-color: #3b82f6;
+  color: white;
+}
 
-        .error-message {
-            background-color: #fee2e2;
-            border: 1px solid #ef4444;
-            color: #dc2626;
-            padding: 1rem;
-            border-radius: 6px;
-            margin: 1rem 0;
-            text-align: left;
-        }
-
-        .error-card {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    margin: 2rem 0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.secondary-button {
+  background-color: #6b7280;
+  color: white;
 }
 
 .error-message {
-    color: #dc2626;
-    margin-bottom: 1.5rem;
+  display: none;
+  color: #dc2626;
+  background-color: #fee2e2;
+  border: 1px solid #ef4444;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  text-align: center;
 }
 
-.error-message h2 {
-    margin-bottom: 0.5rem;
-    color: #dc2626;
+.upload-info {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background-color: #f3f4f6;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #4b5563;
 }
 
-.error-message p {
-    color: #666;
+.upload-info p {
+  margin: 0.25rem 0;
+}
+
+.upload-warning {
+  color: #dc2626;
+  font-weight: 500;
 }

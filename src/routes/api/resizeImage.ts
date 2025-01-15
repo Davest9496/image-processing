@@ -2,6 +2,7 @@
 import { Router, Request, Response, Express } from 'express';
 import multer from 'multer';
 import { logger } from '../../utilities/logger';
+import path from 'path';
 import {
   AllowedFormat,
   QueryParams,
@@ -12,10 +13,8 @@ import { cache } from '../../utilities/cache';
 
 const resize = Router();
 
-// Vercel has a 4.5MB payload limit for serverless functions
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB
 
-// Use memory storage with strict size limits
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -34,7 +33,6 @@ const upload = multer({
   },
 });
 
-// Image processing endpoint
 resize.post('/resize', logger, async (req: Request, res: Response): Promise<void> => {
   try {
     // Handle file upload
@@ -96,22 +94,11 @@ resize.post('/resize', logger, async (req: Request, res: Response): Promise<void
       return;
     }
 
-    // Validate dimensions
-    const maxDimension = 2000;
-    if (Number(width) > maxDimension || Number(height) > maxDimension) {
-      res.render('result', {
-        error: {
-          message: 'Dimensions too large',
-          details: `Maximum allowed dimension is ${maxDimension}px`,
-        },
-        imageId: '',
-        width: '',
-        height: '',
-        format: '',
-        apiBasePath: '/api',
-      });
-      return;
-    }
+    // Get original filename without extension
+    const originalFilename = path.parse(uploadResult.originalname).name;
+
+    // Create new filename in the desired format
+    const newFilename = `${originalFilename}-${width}x${height}.${format}`;
 
     const resizeOptions: ResizeOptions = {
       width: Number(width),
@@ -139,18 +126,16 @@ resize.post('/resize', logger, async (req: Request, res: Response): Promise<void
       return;
     }
 
-    const timestamp = Date.now();
-    const cacheKey = `${timestamp}-${width}x${height}.${format}`;
-
-    cache.set(cacheKey, {
+    // Store in cache with the new filename as the key
+    cache.set(newFilename, {
       buffer: processedImageBuffer,
       contentType: `image/${format}`,
-      timestamp,
+      timestamp: Date.now(),
     });
 
-    // Render success result
+    // Render success result with the new filename
     res.render('result', {
-      imageId: cacheKey,
+      imageId: newFilename,
       width,
       height,
       format,
