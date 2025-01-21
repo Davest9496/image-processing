@@ -13,7 +13,7 @@ app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static files setup - ensure the directory exists and handle errors gracefully
+// Static files setup
 const publicPath = path.join(__dirname, 'public');
 app.use(
   express.static(publicPath, {
@@ -24,15 +24,15 @@ app.use(
   })
 );
 
-// Routes
+// Router
 app.use('/api', routes);
 
-// 404 handler - must come after routes but before error handler
+// 404 handler
 app.use((req: express.Request, res: express.Response) => {
   res.status(404).json({ error: 'Not Found' });
 });
 
-// Error handling middleware - must be last
+// Error handling middleware
 app.use(
   (err: Error, req: express.Request, res: express.Response) => {
     console.error('Error:', err.stack);

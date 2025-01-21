@@ -10,7 +10,7 @@ The Image Processing API serves as a practical demonstration of building scalabl
 - Efficient image processing using third-pary library - #Sharp
 - In-memory caching for optimized performance
 - Strong type safety with TypeScript
-- Clean architecture with separation of concerns for easy scalability
+- Clean architecture with separation of concerns for easy scaling and maintenance
 - Comprehensive testing with Jasmine
 
 ## Getting Started
@@ -116,10 +116,11 @@ npm run test:server   # Run server configuration tests
 
 - Image resizing with dimension specifications
 - Multiple output format support (JPG, PNG, WebP)
+- Easy one-click download of processed Image
 - In-memory caching of processed images
-- Validation of input parameters
+- Clean and intuitive web user interface
+- Validation of input parameters against too large or invalid  values
 - Error handling with informative messages
-- Clean and intuitive web interface
 - Comprehensive test coverage
 
 ## Development

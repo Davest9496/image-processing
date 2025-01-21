@@ -1,4 +1,3 @@
-// spec/routes/resize.spec.ts
 import request from 'supertest';
 import app from '../../src/index';
 import sharp from 'sharp';
@@ -33,7 +32,7 @@ describe('Resize Route', () => {
         .field('format', 'jpg');
 
       expect(response.status).toBe(200);
-      // We're rendering a view, so check for HTML response
+      // Check for html response
       expect(response.type).toMatch(/html/);
     });
 
@@ -45,7 +44,7 @@ describe('Resize Route', () => {
           contentType: 'image/jpeg',
         });
 
-      expect(response.status).toBe(200); // Returns 200 because it renders error view
+      expect(response.status).toBe(200); // will return 200 because it renders error view
       expect(response.text).toContain('Missing dimensions');
     });
 
@@ -59,8 +58,7 @@ describe('Resize Route', () => {
         .field('width', '-300')
         .field('height', '200');
 
-      expect(response.status).toBe(200); // Returns 200 because it renders error view
-      // Check for the actual error message from Sharp about negative width
+      expect(response.status).toBe(200); 
       expect(response.text).toContain('Expected positive integer for width');
     });
 
@@ -70,11 +68,11 @@ describe('Resize Route', () => {
         .field('width', '300')
         .field('height', '200');
 
-      expect(response.status).toBe(200); // Returns 200 because it renders error view
+      expect(response.status).toBe(200);
       expect(response.text).toContain('No file uploaded');
     });
 
-    // Adding more comprehensive dimension validation tests
+    // More dimension validation tests
     it('should handle zero dimensions', async () => {
       const response = await request(app)
         .post('/api/images/resize')
