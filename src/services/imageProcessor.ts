@@ -6,7 +6,6 @@ export const imageProcessor = async (
   options: ResizeOptions
 ): Promise<Buffer> => {
   const { width, height, format } = options;
-
   try {
     return await sharp(inputBuffer)
       .resize(width, height)

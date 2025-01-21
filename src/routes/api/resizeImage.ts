@@ -1,4 +1,3 @@
-// resizeImage.ts
 import { Router, Request, Response, Express } from 'express';
 import multer from 'multer';
 import { logger } from '../../utilities/logger';
