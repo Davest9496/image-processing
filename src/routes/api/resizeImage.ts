@@ -32,36 +32,124 @@ const upload = multer({
   },
 });
 
-resize.post('/resize', logger, async (req: Request, res: Response): Promise<void> => {
-  try {
-    // Handle file upload
-    const uploadResult = await new Promise<Express.Multer.File | undefined>(
-      (resolve, reject) => {
-        upload.single('image')(req, res, (err) => {
-          if (err instanceof multer.MulterError) {
-            if (err.code === 'LIMIT_FILE_SIZE') {
-              reject(
-                new Error(
-                  `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`
-                )
-              );
+resize.post(
+  '/resize',
+  logger,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Handle file upload
+      const uploadResult = await new Promise<Express.Multer.File | undefined>(
+        (resolve, reject) => {
+          upload.single('image')(req, res, (err) => {
+            if (err instanceof multer.MulterError) {
+              if (err.code === 'LIMIT_FILE_SIZE') {
+                reject(
+                  new Error(
+                    `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+                  )
+                );
+              } else {
+                reject(new Error(`Upload error: ${err.message}`));
+              }
+            } else if (err) {
+              reject(err);
             } else {
-              reject(new Error(`Upload error: ${err.message}`));
+              resolve(req.file);
             }
-          } else if (err) {
-            reject(err);
-          } else {
-            resolve(req.file);
-          }
+          });
+        }
+      );
+
+      if (!uploadResult) {
+        res.render('result', {
+          error: {
+            message: 'No file uploaded',
+            details: 'Please select an image file',
+          },
+          imageId: '',
+          width: '',
+          height: '',
+          format: '',
+          apiBasePath: '/api',
         });
+        return;
       }
-    );
 
-    if (!uploadResult) {
+      const {
+        width,
+        height,
+        format = 'jpg',
+      } = req.body as unknown as QueryParams;
+
+      if (!width || !height) {
+        res.render('result', {
+          error: {
+            message: 'Missing dimensions',
+            details: 'Both width and height are required',
+          },
+          imageId: '',
+          width: '',
+          height: '',
+          format: '',
+          apiBasePath: '/api',
+        });
+        return;
+      }
+
+      // Get original filename without extension
+      const originalFilename = path.parse(uploadResult.originalname).name;
+
+      // Create new filename in the desired format
+      const newFilename = `${originalFilename}-${width}x${height}.${format}`;
+
+      const resizeOptions: ResizeOptions = {
+        width: Number(width),
+        height: Number(height),
+        format: format as AllowedFormat,
+      };
+
+      const processedImageBuffer = await imageProcessor(
+        uploadResult.buffer,
+        resizeOptions
+      );
+
+      if (processedImageBuffer.length > MAX_FILE_SIZE) {
+        res.render('result', {
+          error: {
+            message: 'Processed image too large',
+            details: 'Try reducing dimensions or using a different format',
+          },
+          imageId: '',
+          width: '',
+          height: '',
+          format: '',
+          apiBasePath: '/api',
+        });
+        return;
+      }
+
+      // Store in cache with the new filename as the key
+      cache.set(newFilename, {
+        buffer: processedImageBuffer,
+        contentType: `image/${format}`,
+        timestamp: Date.now(),
+      });
+
+      // Render success result with the new filename
+      res.render('result', {
+        imageId: newFilename,
+        width,
+        height,
+        format,
+        error: null,
+        apiBasePath: '/api',
+      });
+    } catch (error) {
+      console.error('Processing error:', error);
       res.render('result', {
         error: {
-          message: 'No file uploaded',
-          details: 'Please select an image file',
+          message: 'Image processing failed',
+          details: error instanceof Error ? error.message : 'Unknown error',
         },
         imageId: '',
         width: '',
@@ -69,93 +157,9 @@ resize.post('/resize', logger, async (req: Request, res: Response): Promise<void
         format: '',
         apiBasePath: '/api',
       });
-      return;
     }
-
-    const {
-      width,
-      height,
-      format = 'jpg',
-    } = req.body as unknown as QueryParams;
-
-    if (!width || !height) {
-      res.render('result', {
-        error: {
-          message: 'Missing dimensions',
-          details: 'Both width and height are required',
-        },
-        imageId: '',
-        width: '',
-        height: '',
-        format: '',
-        apiBasePath: '/api',
-      });
-      return;
-    }
-
-    // Get original filename without extension
-    const originalFilename = path.parse(uploadResult.originalname).name;
-
-    // Create new filename in the desired format
-    const newFilename = `${originalFilename}-${width}x${height}.${format}`;
-
-    const resizeOptions: ResizeOptions = {
-      width: Number(width),
-      height: Number(height),
-      format: format as AllowedFormat,
-    };
-
-    const processedImageBuffer = await imageProcessor(
-      uploadResult.buffer,
-      resizeOptions
-    );
-
-    if (processedImageBuffer.length > MAX_FILE_SIZE) {
-      res.render('result', {
-        error: {
-          message: 'Processed image too large',
-          details: 'Try reducing dimensions or using a different format',
-        },
-        imageId: '',
-        width: '',
-        height: '',
-        format: '',
-        apiBasePath: '/api',
-      });
-      return;
-    }
-
-    // Store in cache with the new filename as the key
-    cache.set(newFilename, {
-      buffer: processedImageBuffer,
-      contentType: `image/${format}`,
-      timestamp: Date.now(),
-    });
-
-    // Render success result with the new filename
-    res.render('result', {
-      imageId: newFilename,
-      width,
-      height,
-      format,
-      error: null,
-      apiBasePath: '/api',
-    });
-  } catch (error) {
-    console.error('Processing error:', error);
-    res.render('result', {
-      error: {
-        message: 'Image processing failed',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
-      imageId: '',
-      width: '',
-      height: '',
-      format: '',
-      apiBasePath: '/api',
-    });
   }
-});
+);
 
 // Serve processed images
 resize.get(

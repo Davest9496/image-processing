@@ -7,16 +7,23 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "tsc && npm run copy-images",
-    "copy-images": "copyfiles -u 1 src/images/**/* dist/src",
-    "pretest": "npm run build",
-    "vercel-build": "npm run build",
+    "start": "node dist/src/index.js",
+    "dev": "nodemon --watch src --exec ts-node src/index.ts",
+    "build": "tsc && npm run copy:all",
     "lint": "eslint 'src/**/*.ts'",
     "prettier": "prettier --write 'src/**/*.ts'",
-    "test": "ts-node ./node_modules/jasmine/bin/jasmine.js \"spec/**/*.spec.ts\"",
-    "test:unit": "ts-node ./node_modules/jasmine/bin/jasmine.js \"spec/services/**/*.spec.ts\"",
-    "test:routes": "ts-node ./node_modules/jasmine/bin/jasmine.js \"spec/routes/**/*.spec.ts\"",
-    "test:server": "ts-node ./node_modules/jasmine/bin/jasmine.js \"spec/index.spec.ts\""
+    "copy:views": "copyfiles -u 1 \"src/views/**/*.ejs\" dist/src",
+    "copy:images": "copyfiles -u 1 \"src/images/**/*\" dist/src",
+    "copy:public": "copyfiles -u 1 \"src/public/**/*\" dist/src",
+    "copy:all": "npm run copy:views && npm run copy:images && npm run copy:public",
+    "clean": "rimraf dist/*",
+    "prebuild": "npm run clean",
+    "pretest": "npm run build",
+    "test": "jasmine",
+    "test:unit": "jasmine \"dist/spec/services/**/*.spec.js\"",
+    "test:routes": "jasmine \"dist/spec/routes/**/*.spec.js\"",
+    "test:server": "jasmine \"dist/spec/index.spec.js\"",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
@@ -38,8 +45,9 @@
     "copyfiles": "^2.4.1",
     "jasmine": "^5.5.0",
     "jasmine-spec-reporter": "^7.0.0",
-    "nodemon": "^3.1.7",
+    "nodemon": "^3.1.9",
     "prettier": "^3.4.1",
+    "rimraf": "^6.0.1",
     "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"

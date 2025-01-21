@@ -15,13 +15,20 @@ describe('Express Server', () => {
     });
   });
 
-  describe('Static File Serving', () => {
-    it('should serve static files from public directory', async () => {
-      const response = await request(app).get('/test.css');
-      // We expect 404 because test.css doesn't exist, but we're testing the static middleware
-      expect(response.status).toBe(404);
-    });
-  });
+ describe('Static File Serving', () => {
+   it('should serve static files from public directory', async () => {
+     // Try to access a file we know doesn't exist
+     const response = await request(app)
+       .get('/test.css')
+       .expect('Content-Type', /json/) // We expect a JSON response for the 404
+       .expect(404);
+
+     // Verify we get the correct error message
+     expect(response.body).toEqual({
+       error: 'Not Found',
+     });
+   });
+ });
 
   describe('API Base Route', () => {
     it('should render index page at /api/', async () => {
